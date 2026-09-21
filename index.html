@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#075e54">
+<title>আয়-ব্যয় হিসাব</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --primary:#075e54;
+  --primary2:#128c7e;
+  --bg:#f3f6f5;
+  --card:#fff;
+  --text:#17201e;
+  --muted:#687572;
+  --border:#dce5e2;
+  --income:#168a52;
+  --expense:#d83a3a;
+  --warning:#d78b00;
+  --shadow:0 3px 12px rgba(0,0,0,.07);
+}
+body.dark{
+  --bg:#101514;
+  --card:#19201f;
+  --text:#edf5f2;
+  --muted:#aab7b3;
+  --border:#303b38;
+  --shadow:0 3px 12px rgba(0,0,0,.25);
+}
+body{
+  margin:0;
+  font-family:Arial,"Noto Sans Bengali",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.header{
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+  padding:18px 16px 22px;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  font-size:22px;
+  font-weight:800;
+}
+.subtitle{
+  font-size:12px;
+  opacity:.85;
+  margin-top:3px;
+}
+.icon-btn{
+  border:0;
+  background:rgba(255,255,255,.16);
+  color:white;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:19px;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:14px 12px 95px;
+}
+.page{display:none}
+.page.active{display:block}
+.section-title{
+  font-size:18px;
+  font-weight:800;
+  margin:8px 0 12px;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:15px;
+  box-shadow:var(--shadow);
+}
+.stat-label{
+  color:var(--muted);
+  font-size:12px;
+}
+.stat-value{
+  font-size:21px;
+  font-weight:800;
+  margin-top:6px;
+}
+.income{color:var(--income)}
+.expense{color:var(--expense)}
+.balance{color:var(--primary2)}
+.dashboard-main{
+  margin-top:12px;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+}
+.dashboard-main .stat-label{color:#d8f4ee}
+.dashboard-main .stat-value{font-size:30px}
+.form-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin:0 0 6px;
+}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--text);
+  border-radius:10px;
+  padding:12px;
+  outline:none;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--primary2);
+}
+.form-group{margin-bottom:12px}
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.btn{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:13px;
+  font-weight:800;
+}
+.btn-primary{background:var(--primary);color:white}
+.btn-income{background:var(--income);color:white}
+.btn-expense{background:var(--expense);color:white}
+.btn-secondary{background:#e5ecea;color:var(--text)}
+body.dark .btn-secondary{background:#273330}
+.btn-danger{background:#b72b2b;color:white}
+.type-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.type-btn{
+  padding:12px;
+  border-radius:10px;
+  border:2px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  font-weight:800;
+}
+.type-btn.active.income-type{
+  background:#e4f6ec;
+  border-color:var(--income);
+  color:var(--income);
+}
+.type-btn.active.expense-type{
+  background:#fde9e9;
+  border-color:var(--expense);
+  color:var(--expense);
+}
+body.dark .type-btn.active.income-type{background:#173426}
+body.dark .type-btn.active.expense-type{background:#3a2020}
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:12px 0;
+}
+.quick-btn{
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:var(--card);
+  color:var(--text);
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  font-weight:800;
+}
+.quick-btn small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-weight:normal;
+}
+.transaction{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.transaction:last-child{border-bottom:0}
+.tx-icon{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:19px;
+}
+.tx-icon.i{background:#e2f5eb}
+.tx-icon.e{background:#fde8e8}
+body.dark .tx-icon.i{background:#173426}
+body.dark .tx-icon.e{background:#3a2020}
+.tx-info{flex:1;min-width:0}
+.tx-title{
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.tx-meta{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:3px;
+}
+.tx-amount{
+  font-weight:800;
+  white-space:nowrap;
+}
+.tx-actions{
+  display:flex;
+  gap:5px;
+  margin-left:4px;
+}
+.small-btn{
+  width:31px;
+  height:31px;
+  border:0;
+  border-radius:8px;
+  background:var(--bg);
+  color:var(--text);
+}
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:25px 10px;
+}
+.filter-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.report-box{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.progress{
+  height:10px;
+  background:var(--border);
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:8px;
+}
+.progress-bar{
+  height:100%;
+  background:var(--primary2);
+}
+.budget-item{
+  margin-bottom:14px;
+}
+.budget-head{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:700;
+}
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:70px;
+  background:var(--card);
+  border-top:1px solid var(--border);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  z-index:30;
+}
+.nav-btn{
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:10px;
+}
+.nav-btn span{
+  display:block;
+  font-size:20px;
+  margin-bottom:2px;
+}
+.nav-btn.active{
+  color:var(--primary);
+  font-weight:800;
+}
+.fab{
+  position:fixed;
+  right:18px;
+  bottom:84px;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  border:0;
+  background:var(--primary);
+  color:white;
+  font-size:28px;
+  box-shadow:0 5px 18px rgba(0,0,0,.22);
+  z-index:25;
+}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:100;
+  padding:20px 12px;
+  overflow:auto;
+}
+.modal.show{display:block}
+.modal-box{
+  max-width:600px;
+  margin:30px auto;
+  background:var(--card);
+  color:var(--text);
+  border-radius:16px;
+  padding:18px;
+}
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.close{
+  border:0;
+  background:var(--bg);
+  color:var(--text);
+  width:35px;
+  height:35px;
+  border-radius:50%;
+}
+.category-list{
+  display:grid;
+  gap:8px;
+}
+.category-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+}
+.category-name{font-weight:700}
+.tag{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:10px;
+  background:var(--bg);
+  color:var(--muted);
+}
+.notice{
+  background:#fff4d6;
+  color:#765600;
+  border-radius:10px;
+  padding:11px;
+  font-size:12px;
+  margin-bottom:12px;
+}
+body.dark .notice{
+  background:#3b321d;
+  color:#f2d27a;
+}
+@media(min-width:700px){
+  .cards{grid-template-columns:repeat(4,1fr)}
+  .quick-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-row">
+    <div>
+      <div class="logo">💰 আয়-ব্যয় হিসাব</div>
+      <div class="subtitle">আপনার অর্থ ব্যবস্থাপনা সহজ করুন</div>
+    </div>
+    <button class="icon-btn" onclick="toggleDark()">🌙</button>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+  <div class="section-title">ড্যাশবোর্ড</div>
+
+  <div class="card dashboard-main">
+    <div class="stat-label">বর্তমান ব্যালেন্স</div>
+    <div class="stat-value" id="balance">৳0</div>
+    <div id="balanceText" style="font-size:12px;margin-top:5px">আয় থেকে ব্যয় বাদ দিয়ে</div>
+  </div>
+
+  <div class="cards" style="margin-top:12px">
+    <div class="card">
+      <div class="stat-label">মোট আয়</div>
+      <div class="stat-value income" id="totalIncome">৳0</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">মোট ব্যয়</div>
+      <div class="stat-value expense" id="totalExpense">৳0</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">আজকের আয়</div>
+      <div class="stat-value income" id="todayIncome">৳0</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">আজকের ব্যয়</div>
+      <div class="stat-value expense" id="todayExpense">৳0</div>
+    </div>
+  </div>
+
+  <div class="quick-grid">
+    <button class="quick-btn" onclick="openAdd('income')">
+      ➕ আয় যোগ
+      <small>নতুন আয়</small>
+    </button>
+    <button class="quick-btn" onclick="openAdd('expense')">
+      ➖ ব্যয় যোগ
+      <small>নতুন খরচ</small>
+    </button>
+    <button class="quick-btn" onclick="showPage('reports')">
+      📊 রিপোর্ট
+      <small>বিস্তারিত হিসাব</small>
+    </button>
+    <button class="quick-btn" onclick="showPage('budget')">
+      🎯 বাজেট
+      <small>মাসিক বাজেট</small>
+    </button>
+  </div>
+
+  <div class="section-title">সাম্প্রতিক লেনদেন</div>
+  <div class="card" id="recentTransactions"></div>
+</section>
+
+<!-- ADD TRANSACTION -->
+<section id="add" class="page">
+  <div class="section-title" id="formTitle">নতুন লেনদেন</div>
+
+  <div class="form-card">
+    <div class="form-group">
+      <label>লেনদেনের ধরন</label>
+      <div class="type-buttons">
+        <button id="incomeTypeBtn" class="type-btn income-type active" onclick="setType('income')">💰 আয়</button>
+        <button id="expenseTypeBtn" class="type-btn expense-type" onclick="setType('expense')">💸 ব্যয়</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>টাকার পরিমাণ *</label>
+      <input id="amount" type="number" min="0" placeholder="যেমন: 5000">
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>ক্যাটাগরি *</label>
+        <select id="category"></select>
+      </div>
+      <div class="form-group">
+        <label>তারিখ *</label>
+        <input id="date" type="date">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>পেমেন্ট মাধ্যম</label>
+      <select id="payment">
+        <option>নগদ</option>
+        <option>বিকাশ</option>
+        <option>নগদ (Nagad)</option>
+        <option>রকেট</option>
+        <option>উপায়</option>
+        <option>ব্যাংক</option>
+        <option>কার্ড</option>
+        <option>অন্যান্য</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>বিবরণ / নোট</label>
+      <textarea id="note" rows="3" placeholder="এই লেনদেন সম্পর্কে কিছু লিখুন..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveTransaction()">💾 লেনদেন সংরক্ষণ করুন</button>
+  </div>
+</section>
+
+<!-- TRANSACTIONS -->
+<section id="transactions" class="page">
+  <div class="section-title">সব লেনদেন</div>
+
+  <div class="form-card">
+    <div class="form-group">
+      <label>খুঁজুন</label>
+      <input id="search" oninput="renderTransactions()" placeholder="ক্যাটাগরি, নোট বা পেমেন্ট খুঁজুন...">
+    </div>
+
+    <div class="filter-grid">
+      <div>
+        <label>ধরন</label>
+        <select id="filterType" onchange="renderTransactions()">
+          <option value="all">সব</option>
+          <option value="income">শুধু আয়</option>
+          <option value="expense">শুধু ব্যয়</option>
+        </select>
+      </div>
+      <div>
+        <label>ক্যাটাগরি</label>
+        <select id="filterCategory" onchange="renderTransactions()">
+          <option value="all">সব ক্যাটাগরি</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-grid" style="margin-top:10px">
+      <div>
+        <label>শুরু তারিখ</label>
+        <input id="fromDate" type="date" onchange="renderTransactions()">
+      </div>
+      <div>
+        <label>শেষ তারিখ</label>
+        <input id="toDate" type="date" onchange="renderTransactions()">
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" style="margin-top:10px" onclick="clearFilters()">ফিল্টার পরিষ্কার</button>
+  </div>
+
+  <div class="card" id="transactionList"></div>
+</section>
+
+<!-- REPORTS -->
+<section id="reports" class="page">
+  <div class="section-title">📊 রিপোর্ট</div>
+
+  <div class="form-card">
+    <div class="row">
+      <div>
+        <label>মাস</label>
+        <select id="reportMonth" onchange="renderReports()"></select>
+      </div>
+      <div>
+        <label>বছর</label>
+        <select id="reportYear" onchange="renderReports()"></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="stat-label">নির্বাচিত মাসের আয়</div>
+      <div class="stat-value income" id="reportIncome">৳0</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">নির্বাচিত মাসের ব্যয়</div>
+      <div class="stat-value expense" id="reportExpense">৳0</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="stat-label">মাসিক উদ্বৃত্ত / ঘাটতি</div>
+    <div class="stat-value balance" id="reportBalance">৳0</div>
+  </div>
+
+  <div class="section-title" style="margin-top:18px">ব্যয়ের ক্যাটাগরি</div>
+  <div class="card" id="expenseReport"></div>
+
+  <div class="section-title" style="margin-top:18px">আয়ের ক্যাটাগরি</div>
+  <div class="card" id="incomeReport"></div>
+</section>
+
+<!-- BUDGET -->
+<section id="budget" class="page">
+  <div class="section-title">🎯 মাসিক বাজেট</div>
+
+  <div class="notice">
+    প্রতিটি ক্যাটাগরির জন্য মাসিক সর্বোচ্চ ব্যয়ের সীমা নির্ধারণ করতে পারবেন।
+  </div>
+
+  <div class="form-card">
+    <div class="row">
+      <div class="form-group">
+        <label>ক্যাটাগরি</label>
+        <select id="budgetCategory"></select>
+      </div>
+      <div class="form-group">
+        <label>মাসিক বাজেট (৳)</label>
+        <input id="budgetAmount" type="number" min="0" placeholder="যেমন: 8000">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveBudget()">💾 বাজেট সংরক্ষণ</button>
+  </div>
+
+  <div class="card" id="budgetList"></div>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings" class="page">
+  <div class="section-title">⚙️ সেটিংস</div>
+
+  <div class="form-card">
+    <div class="form-group">
+      <label>আপনার নাম</label>
+      <input id="userName" placeholder="আপনার নাম">
+    </div>
+
+    <div class="form-group">
+      <label>মোবাইল নম্বর</label>
+      <input id="phone" placeholder="01XXXXXXXXX">
+    </div>
+
+    <button class="btn btn-primary" onclick="saveSettings()">💾 সেটিংস সংরক্ষণ</button>
+  </div>
+
+  <div class="form-card">
+    <div class="section-title">📂 ডেটা ব্যবস্থাপনা</div>
+
+    <button class="btn btn-secondary" onclick="backupData()">⬇️ Backup JSON ডাউনলোড</button>
+    <br><br>
+
+    <label>Backup Restore</label>
+    <input type="file" id="restoreFile" accept=".json" onchange="restoreData(event)">
+    <br>
+
+    <button class="btn btn-secondary" onclick="exportCSV()">📄 CSV Export</button>
+    <br><br>
+
+    <button class="btn btn-danger" onclick="deleteAllData()">⚠️ সব ডেটা মুছে ফেলুন</button>
+  </div>
+
+  <div class="form-card">
+    <div class="section-title">🏷️ ক্যাটাগরি ব্যবস্থাপনা</div>
+
+    <div class="row">
+      <input id="newCategory" placeholder="নতুন ক্যাটাগরি">
+      <select id="newCategoryType">
+        <option value="expense">ব্যয়</option>
+        <option value="income">আয়</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" style="margin-top:10px" onclick="addCategory()">➕ ক্যাটাগরি যোগ</button>
+
+    <div class="category-list" id="categoryList" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <b>আয়-ব্যয় হিসাব</b>
+    <div style="font-size:12px;color:var(--muted);margin-top:5px">
+      আপনার ব্যক্তিগত অর্থ ব্যবস্থাপনার জন্য তৈরি।
+    </div>
+  </div>
+</section>
+
+</main>
+
+<button class="fab" onclick="openAdd('expense')">+</button>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-page="dashboard" onclick="showPage('dashboard')">
+    <span>🏠</span>হোম
+  </button>
+  <button class="nav-btn" data-page="transactions" onclick="showPage('transactions')">
+    <span>📋</span>লেনদেন
+  </button>
+  <button class="nav-btn" data-page="reports" onclick="showPage('reports')">
+    <span>📊</span>রিপোর্ট
+  </button>
+  <button class="nav-btn" data-page="budget" onclick="showPage('budget')">
+    <span>🎯</span>বাজেট
+  </button>
+  <button class="nav-btn" data-page="settings" onclick="showPage('settings')">
+    <span>⚙️</span>সেটিংস
+  </button>
+</nav>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <b>লেনদেন সম্পাদনা</b>
+      <button class="close" onclick="closeEdit()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label>ধরন</label>
+      <select id="editType">
+        <option value="income">আয়</option>
+        <option value="expense">ব্যয়</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>পরিমাণ</label>
+      <input id="editAmount" type="number">
+    </div>
+
+    <div class="form-group">
+      <label>ক্যাটাগরি</label>
+      <select id="editCategory"></select>
+    </div>
+
+    <div class="form-group">
+      <label>তারিখ</label>
+      <input id="editDate" type="date">
+    </div>
+
+    <div class="form-group">
+      <label>পেমেন্ট মাধ্যম</label>
+      <select id="editPayment">
+        <option>নগদ</option>
+        <option>বিকাশ</option>
+        <option>নগদ (Nagad)</option>
+        <option>রকেট</option>
+        <option>উপায়</option>
+        <option>ব্যাংক</option>
+        <option>কার্ড</option>
+        <option>অন্যান্য</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>নোট</label>
+      <textarea id="editNote" rows="3"></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="updateTransaction()">আপডেট করুন</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY="ay_boy_transactions_v1";
+const CATEGORY_KEY="ay_boy_categories_v1";
+const BUDGET_KEY="ay_boy_budgets_v1";
+const SETTINGS_KEY="ay_boy_settings_v1";
+
+let transactions=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+let categories=JSON.parse(localStorage.getItem(CATEGORY_KEY)||"null");
+let budgets=JSON.parse(localStorage.getItem(BUDGET_KEY)||"[]");
+let settings=JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}");
+
+const defaultCategories=[
+ {name:"বেতন",type:"income"},
+ {name:"ব্যবসার আয়",type:"income"},
+ {name:"ফ্রিল্যান্সিং",type:"income"},
+ {name:"অনলাইন আয়",type:"income"},
+ {name:"বাড়ি ভাড়া",type:"income"},
+ {name:"জমি/সম্পত্তির আয়",type:"income"},
+ {name:"কৃষি আয়",type:"income"},
+ {name:"মাছ/পশুপালন",type:"income"},
+ {name:"কমিশন",type:"income"},
+ {name:"বোনাস",type:"income"},
+ {name:"উপহার",type:"income"},
+ {name:"বিনিয়োগের আয়",type:"income"},
+ {name:"অন্যান্য আয়",type:"income"},
+
+ {name:"খাবার",type:"expense"},
+ {name:"বাজার",type:"expense"},
+ {name:"বাসা ভাড়া",type:"expense"},
+ {name:"বিদ্যুৎ",type:"expense"},
+ {name:"গ্যাস",type:"expense"},
+ {name:"পানি",type:"expense"},
+ {name:"ইন্টারনেট",type:"expense"},
+ {name:"মোবাইল রিচার্জ",type:"expense"},
+ {name:"যাতায়াত",type:"expense"},
+ {name:"জ্বালানি",type:"expense"},
+ {name:"চিকিৎসা",type:"expense"},
+ {name:"ওষুধ",type:"expense"},
+ {name:"শিক্ষা",type:"expense"},
+ {name:"পোশাক",type:"expense"},
+ {name:"পরিবার",type:"expense"},
+ {name:"সন্তান",type:"expense"},
+ {name:"বিনোদন",type:"expense"},
+ {name:"ভ্রমণ",type:"expense"},
+ {name:"ব্যবসা",type:"expense"},
+ {name:"কর্মচারী",type:"expense"},
+ {name:"ঋণের কিস্তি",type:"expense"},
+ {name:"সঞ্চয়",type:"expense"},
+ {name:"দান",type:"expense"},
+ {name:"অন্যান্য ব্যয়",type:"expense"}
+];
+
+if(!categories){
+ categories=defaultCategories;
+ saveCategories();
+}
+
+let currentType="expense";
+let editingId=null;
+
+function saveTransactions(){
+ localStorage.setItem(STORAGE_KEY,JSON.stringify(transactions));
+}
+
+function saveCategories(){
+ localStorage.setItem(CATEGORY_KEY,JSON.stringify(categories));
+}
+
+function saveBudgets(){
+ localStorage.setItem(BUDGET_KEY,JSON.stringify(budgets));
+}
+
+function money(n){
+ return "৳"+Number(n||0).toLocaleString("bn-BD");
+}
+
+function today(){
+ const d=new Date();
+ const m=String(d.getMonth()+1).padStart(2,"0");
+ const day=String(d.getDate()).padStart(2,"0");
+ return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function monthKey(date){
+ return date.slice(0,7);
+}
+
+function showPage(id){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+
+ document.querySelectorAll(".nav-btn").forEach(b=>{
+   b.classList.toggle("active",b.dataset.page===id);
+ });
+
+ if(id==="dashboard") renderDashboard();
+ if(id==="transactions") renderTransactions();
+ if(id==="reports") renderReports();
+ if(id==="budget") renderBudget();
+ if(id==="settings") renderSettings();
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function openAdd(type="expense"){
+ currentType=type;
+ document.getElementById("formTitle").textContent=type==="income"?"নতুন আয়":"নতুন ব্যয়";
+ document.getElementById("amount").value="";
+ document.getElementById("note").value="";
+ document.getElementById("date").value=today();
+
+ document.getElementById("incomeTypeBtn").classList.toggle("active",type==="income");
+ document.getElementById("expenseTypeBtn").classList.toggle("active",type==="expense");
+
+ fillCategorySelects();
+ showPage("add");
+}
+
+function setType(type){
+ currentType=type;
+ document.getElementById("formTitle").textContent=type==="income"?"নতুন আয়":"নতুন ব্যয়";
+ document.getElementById("incomeTypeBtn").classList.toggle("active",type==="income");
+ document.getElementById("expenseTypeBtn").classList.toggle("active",type==="expense");
+ fillCategorySelects();
+}
+
+function fillCategorySelects(){
+ const cats=categories.filter(c=>c.type===currentType);
+ const html=cats.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");
+ document.getElementById("category").innerHTML=html;
+
+ const all=categories.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)} (${c.type==="income"?"আয়":"ব্যয়"})</option>`).join("");
+ document.getElementById("editCategory").innerHTML=all;
+
+ document.getElementById("filterCategory").innerHTML=
+ `<option value="all">সব ক্যাটাগরি</option>`+
+ categories.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");
+
+ document.getElementById("budgetCategory").innerHTML=
+ categories.filter(c=>c.type==="expense")
+ .map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");
+}
+
+function saveTransaction(){
+ const amount=Number(document.getElementById("amount").value);
+ const category=document.getElementById("category").value;
+ const date=document.getElementById("date").value;
+ const payment=document.getElementById("payment").value;
+ const note=document.getElementById("note").value.trim();
+
+ if(!amount || amount<=0){
+   alert("সঠিক টাকার পরিমাণ দিন।");
+   return;
+ }
+ if(!date){
+   alert("তারিখ নির্বাচন করুন।");
+   return;
+ }
+
+ transactions.push({
+   id:Date.now(),
+   type:currentType,
+   amount,
+   category,
+   date,
+   payment,
+   note
+ });
+
+ saveTransactions();
+ alert(currentType==="income"?"আয় সফলভাবে যোগ হয়েছে।":"ব্যয় সফলভাবে যোগ হয়েছে।");
+ showPage("dashboard");
+}
+
+function renderDashboard(){
+ const income=transactions.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
+ const expense=transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
+
+ const td=today();
+ const todayIncome=transactions.filter(t=>t.type==="income"&&t.date===td).reduce((s,t)=>s+t.amount,0);
+ const todayExpense=transactions.filter(t=>t.type==="expense"&&t.date===td).reduce((s,t)=>s+t.amount,0);
+
+ document.getElementById("balance").textContent=money(income-expense);
+ document.getElementById("totalIncome").textContent=money(income);
+ document.getElementById("totalExpense").textContent=money(expense);
+ document.getElementById("todayIncome").textContent=money(todayIncome);
+ document.getElementById("todayExpense").textContent=money(todayExpense);
+
+ const recent=[...transactions].sort((a,b)=>b.id-a.id).slice(0,8);
+ document.getElementById("recentTransactions").innerHTML=
+ recent.length?recent.map(transactionHTML).join(""):`<div class="empty">এখনো কোনো লেনদেন যোগ করা হয়নি।</div>`;
+}
+
+function transactionHTML(t){
+ const sign=t.type==="income"?"+":"-";
+ const cls=t.type==="income"?"i":"e";
+ const icon=t.type==="income"?"💰":"💸";
+
+ return `
+ <div class="transaction">
+   <div class="tx-icon ${cls}">${icon}</div>
+   <div class="tx-info">
+     <div class="tx-title">${escapeHtml(t.category)}</div>
+     <div class="tx-meta">${escapeHtml(t.date)} • ${escapeHtml(t.payment||"নগদ")}${t.note?" • "+escapeHtml(t.note):""}</div>
+   </div>
+   <div class="tx-amount ${t.type}">
+     ${sign}${money(t.amount)}
+   </div>
+   <div class="tx-actions">
+     <button class="small-btn" onclick="editTransaction(${t.id})">✏️</button>
+     <button class="small-btn" onclick="deleteTransaction(${t.id})">🗑️</button>
+   </div>
+ </div>`;
+}
+
+function renderTransactions(){
+ let list=[...transactions];
+
+ const search=(document.getElementById("search")?.value||"").toLowerCase();
+ const type=document.getElementById("filterType")?.value||"all";
+ const cat=document.getElementById("filterCategory")?.value||"all";
+ const from=document.getElementById("fromDate")?.value||"";
+ const to=document.getElementById("toDate")?.value||"";
+
+ list=list.filter(t=>{
+   const text=(t.category+" "+t.note+" "+t.payment).toLowerCase();
+   return (!search||text.includes(search)) &&
+   (type==="all"||t.type===type) &&
+   (cat==="all"||t.category===cat) &&
+   (!from||t.date>=from) &&
+   (!to||t.date<=to);
+ });
+
+ list.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+
+ document.getElementById("transactionList").innerHTML=
+ list.length?list.map(transactionHTML).join(""):`<div class="empty">কোনো লেনদেন পাওয়া যায়নি।</div>`;
+}
+
+function clearFilters(){
+ document.getElementById("search").value="";
+ document.getElementById("filterType").value="all";
+ document.getElementById("filterCategory").value="all";
+ document.getElementById("fromDate").value="";
+ document.getElementById("toDate").value="";
+ renderTransactions();
+}
+
+function editTransaction(id){
+ const t=transactions.find(x=>x.id===id);
+ if(!t)return;
+
+ editingId=id;
+
+ document.getElementById("editType").value=t.type;
+ document.getElementById("editAmount").value=t.amount;
+ document.getElementById("editDate").value=t.date;
+ document.getElementById("editPayment").value=t.payment||"নগদ";
+ document.getElementById("editNote").value=t.note||"";
+
+ document.getElementById("editCategory").innerHTML=
+ categories.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");
+
+ document.getElementById("editCategory").value=t.category;
+
+ document.getElementById("editModal").classList.add("show");
+}
+
+function closeEdit(){
+ document.getElementById("editModal").classList.remove("show");
+ editingId=null;
+}
+
+function updateTransaction(){
+ const t=transactions.find(x=>x.id===editingId);
+ if(!t)return;
+
+ const amount=Number(document.getElementById("editAmount").value);
+ if(!amount||amount<=0){
+   alert("সঠিক পরিমাণ দিন।");
+   return;
+ }
+
+ t.type=document.getElementById("editType").value;
+ t.amount=amount;
+ t.category=document.getElementById("editCategory").value;
+ t.date=document.getElementById("editDate").value;
+ t.payment=document.getElementById("editPayment").value;
+ t.note=document.getElementById("editNote").value.trim();
+
+ saveTransactions();
+ closeEdit();
+ renderDashboard();
+ renderTransactions();
+ alert("লেনদেন আপডেট হয়েছে।");
+}
+
+function deleteTransaction(id){
+ if(!confirm("এই লেনদেনটি মুছে ফেলবেন?"))return;
+ transactions=transactions.filter(t=>t.id!==id);
+ saveTransactions();
+ renderDashboard();
+ renderTransactions();
+ renderReports();
+ renderBudget();
+}
+
+function renderReports(){
+ const now=new Date();
+ const month=Number(document.getElementById("reportMonth")?.value ?? now.getMonth());
+ const year=Number(document.getElementById("reportYear")?.value ?? now.getFullYear());
+
+ const list=transactions.filter(t=>{
+   const d=new Date(t.date+"T00:00:00");
+   return d.getMonth()===month&&d.getFullYear()===year;
+ });
+
+ const income=list.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
+ const expense=list.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
+
+ document.getElementById("reportIncome").textContent=money(income);
+ document.getElementById("reportExpense").textContent=money(expense);
+ document.getElementById("reportBalance").textContent=money(income-expense);
+
+ renderCategoryReport(list,"expense","expenseReport");
+ renderCategoryReport(list,"income","incomeReport");
+}
+
+function renderCategoryReport(list,type,id){
+ const map={};
+
+ list.filter(t=>t.type===type).forEach(t=>{
+   map[t.category]=(map[t.category]||0)+t.amount;
+ });
+
+ const total=Object.values(map).reduce((a,b)=>a+b,0);
+ const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+
+ if(!sorted.length){
+   document.getElementById(id).innerHTML=`<div class="empty">এই মাসে কোনো তথ্য নেই।</div>`;
+   return;
+ }
+
+ document.getElementById(id).innerHTML=sorted.map(([name,value])=>{
+   const percent=total?Math.round(value/total*100):0;
+   return `
+   <div class="budget-item">
+     <div class="budget-head">
+       <span>${escapeHtml(name)}</span>
+       <span>${money(value)} (${percent}%)</span>
+     </div>
+     <div class="progress">
+       <div class="progress-bar" style="width:${percent}%"></div>
+     </div>
+   </div>`;
+ }).join("");
+}
+
+function setupReportYears(){
+ const now=new Date();
+ const monthNames=[
+  "জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন",
+  "জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"
+ ];
+
+ document.getElementById("reportMonth").innerHTML=monthNames.map((m,i)=>
+   `<option value="${i}">${m}</option>`).join("");
+
+ let years=[];
+ for(let y=now.getFullYear()-5;y<=now.getFullYear()+1;y++)years.push(y);
+
+ document.getElementById("reportYear").innerHTML=years.map(y=>
+   `<option value="${y}">${y}</option>`).join("");
+
+ document.getElementById("reportMonth").value=now.getMonth();
+ document.getElementById("reportYear").value=now.getFullYear();
+}
+
+function saveBudget(){
+ const category=document.getElementById("budgetCategory").value;
+ const amount=Number(document.getElementById("budgetAmount").value);
+
+ if(!amount||amount<=0){
+   alert("সঠিক বাজেটের পরিমাণ দিন।");
+   return;
+ }
+
+ const found=budgets.find(b=>b.category===category);
+
+ if(found)found.amount=amount;
+ else budgets.push({category,amount});
+
+ saveBudgets();
+ document.getElementById("budgetAmount").value="";
+ renderBudget();
+ alert("বাজেট সংরক্ষণ হয়েছে।");
+}
+
+function renderBudget(){
+ const now=new Date();
+ const key=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+
+ if(!budgets.length){
+   document.getElementById("budgetList").innerHTML=
+   `<div class="empty">এখনো কোনো বাজেট নির্ধারণ করা হয়নি।</div>`;
+   return;
+ }
+
+ document.getElementById("budgetList").innerHTML=budgets.map((b,i)=>{
+   const spent=transactions
+    .filter(t=>t.type==="expense"&&t.category===b.category&&monthKey(t.date)===key)
+    .reduce((s,t)=>s+t.amount,0);
+
+   const percent=Math.min(100,Math.round(spent/b.amount*100));
+   const remaining=b.amount-spent;
+
+   return `
+   <div class="budget-item">
+     <div class="budget-head">
+       <span>${escapeHtml(b.category)}</span>
+       <span>${money(spent)} / ${money(b.amount)}</span>
+     </div>
+     <div class="progress">
+       <div class="progress-bar" style="width:${percent}%"></div>
+     </div>
+     <div style="font-size:11px;color:var(--muted);margin-top:5px">
+       ${remaining>=0?"বাকি "+money(remaining):"বাজেট অতিক্রম "+money(Math.abs(remaining))}
+       <button onclick="deleteBudget(${i})" style="float:right;border:0;background:none;color:#c33">মুছুন</button>
+     </div>
+   </div>`;
+ }).join("");
+}
+
+function deleteBudget(i){
+ if(!confirm("এই বাজেট মুছে ফেলবেন?"))return;
+ budgets.splice(i,1);
+ saveBudgets();
+ renderBudget();
+}
+
+function saveSettings(){
+ settings.name=document.getElementById("userName").value.trim();
+ settings.phone=document.getElementById("phone").value.trim();
+ localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+ alert("সেটিংস সংরক্ষণ হয়েছে।");
+}
+
+function renderSettings(){
+ document.getElementById("userName").value=settings.name||"";
+ document.getElementById("phone").value=settings.phone||"";
+ renderCategoryList();
+}
+
+function addCategory(){
+ const name=document.getElementById("newCategory").value.trim();
+ const type=document.getElementById("newCategoryType").value;
+
+ if(!name){
+   alert("ক্যাটাগরির নাম লিখুন।");
+   return;
+ }
+
+ if(categories.some(c=>c.name===name)){
+   alert("এই ক্যাটাগরি আগে থেকেই আছে।");
+   return;
+ }
+
+ categories.push({name,type});
+ saveCategories();
+
+ document.getElementById("newCategory").value="";
+ fillCategorySelects();
+ renderCategoryList();
+
+ alert("নতুন ক্যাটাগরি যোগ হয়েছে।");
+}
+
+function renderCategoryList(){
+ const income=categories.filter(c=>c.type==="income");
+ const expense=categories.filter(c=>c.type==="expense");
+
+ const html=[...income,...expense].map((c,i)=>{
+   const index=categories.indexOf(c);
+   return `
+   <div class="category-row">
+     <div>
+       <div class="category-name">${escapeHtml(c.name)}</div>
+       <span class="tag">${c.type==="income"?"আয়":"ব্যয়"}</span>
+     </div>
+     <button class="small-btn" onclick="deleteCategory(${index})">🗑️</button>
+   </div>`;
+ }).join("");
+
+ document.getElementById("categoryList").innerHTML=html;
+}
+
+function deleteCategory(index){
+ const c=categories[index];
+
+ if(transactions.some(t=>t.category===c.name)){
+   alert("এই ক্যাটাগরিতে লেনদেন আছে। তাই মুছে ফেলা যাবে না।");
+   return;
+ }
+
+ if(!confirm("ক্যাটাগরিটি মুছে ফেলবেন?"))return;
+
+ categories.splice(index,1);
+ saveCategories();
+ fillCategorySelects();
+ renderCategoryList();
+}
+
+function backupData(){
+ const data={
+   app:"আয়-ব্যয় হিসাব",
+   version:1,
+   exportedAt:new Date().toISOString(),
+   transactions,
+   categories,
+   budgets,
+   settings
+ };
+
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="ay-byoy-backup.json";
+ a.click();
+ URL.revokeObjectURL(url);
+}
+
+function restoreData(event){
+ const file=event.target.files[0];
+ if(!file)return;
+
+ const reader=new FileReader();
+
+ reader.onload=function(e){
+   try{
+     const data=JSON.parse(e.target.result);
+
+     if(!data.transactions||!data.categories){
+       alert("সঠিক Backup ফাইল নয়।");
+       return;
+     }
+
+     if(!confirm("বর্তমান ডেটা পরিবর্তন করে Backup Restore করবেন?"))return;
+
+     transactions=data.transactions||[];
+     categories=data.categories||defaultCategories;
+     budgets=data.budgets||[];
+     settings=data.settings||{};
+
+     saveTransactions();
+     saveCategories();
+     saveBudgets();
+     localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+
+     fillCategorySelects();
+     renderDashboard();
+     alert("Backup সফলভাবে Restore হয়েছে।");
+   }catch(err){
+     alert("Backup ফাইল পড়তে সমস্যা হয়েছে।");
+   }
+ };
+
+ reader.readAsText(file);
+}
+
+function exportCSV(){
+ if(!transactions.length){
+   alert("Export করার মতো কোনো লেনদেন নেই।");
+   return;
+ }
+
+ let csv="\uFEFFতারিখ,ধরন,ক্যাটাগরি,পরিমাণ,পেমেন্ট,নোট\n";
+
+ transactions.forEach(t=>{
+   csv+=`"${t.date}","${t.type==="income"?"আয়":"ব্যয়"}","${csvSafe(t.category)}","${t.amount}","${csvSafe(t.payment||"")}","${csvSafe(t.note||"")}"\n`;
+ });
+
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="ay-byoy-report.csv";
+ a.click();
+ URL.revokeObjectURL(url);
+}
+
+function csvSafe(v){
+ return String(v).replace(/"/g,'""');
+}
+
+function deleteAllData(){
+ if(!confirm("সতর্কতা! সব আয়-ব্যয়, বাজেট ও ডেটা মুছে যাবে। আপনি কি নিশ্চিত?"))return;
+
+ if(!confirm("শেষবারের মতো নিশ্চিত করুন। সব ডেটা স্থায়ীভাবে মুছে ফেলবেন?"))return;
+
+ transactions=[];
+ budgets=[];
+ saveTransactions();
+ saveBudgets();
+
+ alert("সব লেনদেন ও বাজেট মুছে দেওয়া হয়েছে।");
+ renderDashboard();
+ renderTransactions();
+ renderBudget();
+}
+
+function toggleDark(){
+ document.body.classList.toggle("dark");
+ localStorage.setItem("ay_byoy_dark",document.body.classList.contains("dark")?"1":"0");
+}
+
+function escapeHtml(str){
+ return String(str??"")
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;")
+ .replace(/"/g,"&quot;")
+ .replace(/'/g,"&#039;");
+}
+
+function init(){
+ if(localStorage.getItem("ay_byoy_dark")==="1"){
+   document.body.classList.add("dark");
+ }
+
+ document.getElementById("date").value=today();
+
+ setupReportYears();
+ fillCategorySelects();
+ renderDashboard();
+ renderTransactions();
+ renderReports();
+ renderBudget();
+ renderSettings();
+}
+
+init();
+</script>
+
+</body>
+</html>
